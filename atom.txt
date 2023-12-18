@@ -1,0 +1,5 @@
+* Tarazzo tile
+* "waterproof tile, heat resistant tile"
+* make grouping including all words in "Tarazzo tile"
+* make grouping including all words in "waterproof tile" and "heat resistant tile"
+* 
