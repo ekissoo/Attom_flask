@@ -1,0 +1,1 @@
+web: gunicorn attom:app
