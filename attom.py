@@ -274,16 +274,18 @@ def generateNGram(keyword_texts, k):
 	list_keywords = keywrodsGenerator(client, customer_id,location_id, language_id, keyword_texts, page_url)
 
 	list_to_excel = []
-	
+	generated_keywords = []
 	for x in range(len(list_keywords)):
-		arr = [list_keywords[x].text, list_keywords[x].keyword_idea_metrics.avg_monthly_searches]
-		if(x < len(keyword_texts)):
-			arr.append(keyword_texts[x])
+		generated_keywords.append(list_keywords[x].text)
+
+		# arr = [list_keywords[x].text, list_keywords[x].keyword_idea_metrics.avg_monthly_searches]
+		# if(x < len(keyword_texts)):
+			# arr.append(keyword_texts[x])
 
 
-		list_to_excel.append(arr)
+		# list_to_excel.append(arr)
 	n = str(k)
-	pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces","KeyPlanner"]).to_excel(f'keywords{n}.xlsx', header=True, index=False)
+	# pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces","KeyPlanner"]).to_excel(f'keywords{n}.xlsx', header=True, index=False)
 
 	d = {}
 
@@ -320,13 +322,15 @@ def generateNGram(keyword_texts, k):
 
 
 	list_to_excel = []
+	ngram = []
 	for x in sorted_keys:
 		if x in exclude_words: 
 			continue
-		list_to_excel.append([x, d[x]])
+		ngram.append([x, d[x]])
+		# list_to_excel.append([x, d[x]])
 
-	pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces"]).to_excel(f'nGram{n}.xlsx', header=True, index=False)
-
+	# pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces"]).to_excel(f'nGram{n}.xlsx', header=True, index=False)
+	return generated_keywords, ngram
 
 
 def throwAttributes(response, category):
@@ -349,6 +353,8 @@ def throwAttributes(response, category):
 		if(tag[i] == 's'):
 			head = 4
 		response['message'][head].append(words[i])	
+
+
 
 
 
@@ -418,23 +424,22 @@ def filterKeywords(nWords, response):
 
 
 
-def filter(nWords,nWordsDict, must_have, k, response):
+def filter(nWords,nWordsDict, must_have, k,keywords, response):
 
 	if(must_have == ''):
 		print("must_have_word not provided")
 		return
 
 	filtered_keywords  = []
-	keywords_file_name = 'keywords'+ str(k)+".xlsx"
+	# keywords_file_name = 'keywords'+ str(k)+".xlsx"
 
-	df = pd.read_excel(keywords_file_name) # can also index sheet by name or fetch all sheets
-	mylist = df['Keyword'].tolist()
-	keywords = [x for x in mylist if str(x) != 'nan']
-	mylist = df['KeyPlanner'].tolist()
-	keyPlanner = [x for x in mylist if str(x) != 'nan']
+	# df = pd.read_excel(keywords_file_name) # can also index sheet by name or fetch all sheets
+	# mylist = df['Keyword'].tolist()
+	# keywords = [x for x in mylist if str(x) != 'nan']
+	# mylist = df['KeyPlanner'].tolist()
+	# keyPlanner = [x for x in mylist if str(x) != 'nan']
 
 	must_have_words = list(must_have.split(", "))
-
 	print("must_have_word = ",must_have_words)
 	# print(keywords)
 
@@ -471,7 +476,8 @@ def filter(nWords,nWordsDict, must_have, k, response):
 
 		if(preferred_keyword):
 			filtered_keywords.append(keyword)
-	print(filtered_keywords)
+
+	return (filtered_keywords)
 
 
 	
@@ -481,12 +487,15 @@ def filter(nWords,nWordsDict, must_have, k, response):
 
 
 
+all_generated_keywords = []
+all_nGrams = []
+
 app = Flask(__name__)
 cors = CORS(app)
 @app.route('/form', methods=['GET', 'POST'])
 def form():
 	response = {
-		"message": [[],[],[],[],[],[],[],[]]
+		"message": [[],[],[],[],[],[],[],[],[],[],[]]
 	}
 	
 	my_dict = json.loads(request.data.decode('utf-8'))
@@ -532,13 +541,18 @@ def form():
 	# print("all_keywords=", all_keywords)
 
 
-
 	if(len(nWords) == 0):
 		k = 0
 		for keyword_texts in all_keywords:
 
-			generateNGram(keyword_texts, k)
+			generated_keywords, nGram = generateNGram(keyword_texts, k)
 			k+=1	
+			all_generated_keywords.append(generated_keywords)
+			all_nGrams.append(nGram)
+
+		response['message'][8] = all_generated_keywords
+		response['message'][9] = all_nGrams
+
 		throwAttributes(response, category)
 
 
@@ -560,18 +574,31 @@ def form():
 			negWords[nWords[i]] = 1
 
 
-
+		all_filtered_keywrods = []
 		k = 0
 		must_have = name 
 		keywords_list = list(map(str, productKeywords.split(", ")))
-		filter(nWords,negWords, must_have, k, response)	
+		print("all_generated_keywords = ", all_generated_keywords)
+		print(k)
+		print("must_have = ", must_have)
+		print("all_generated_keywords = ", all_generated_keywords[k])
+
+		filtered_keywords = filter(nWords,negWords, must_have, k,all_generated_keywords[k],response)	
 		k+=1
+		all_filtered_keywrods.append(filtered_keywords)
 		for x in usp_keywords.keys():
+
 			must_have = x
 			keywords_list = usp_keywords[x]
-			filter(nWords,negWords, must_have, k, response)
-			k+=1
+			print(k)
+			print("must_have = ", must_have)
+			print("all_generated_keywords = ", all_generated_keywords[k])
 
+			filtered_keywords = filter(nWords,negWords, must_have, k, all_generated_keywords[k], response)
+			all_filtered_keywrods.append(filtered_keywords)
+			k+=1
+		response['message'][9] = nWords
+		response['message'][10] = all_filtered_keywrods
 
 
 	return jsonify(response), 200
