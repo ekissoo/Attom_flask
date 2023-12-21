@@ -330,6 +330,8 @@ def generateNGram(keyword_texts, k):
 		# list_to_excel.append([x, d[x]])
 
 	# pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces"]).to_excel(f'nGram{n}.xlsx', header=True, index=False)
+	print()
+	print("generated keywords = ", generated_keywords)
 	return generated_keywords, ngram
 
 
@@ -344,14 +346,18 @@ def throwAttributes(response, category):
 	
 	for i in range(len(words)):
 		head = 7
-		if(tag[i] == 't'):
+		if(tag[i] == 'm'):
 			head = 1
 		if(tag[i] == 'c'):
 			head = 6
-		if(tag[i] == 'p'):
+		if(tag[i] == 'a'):
 			head  = 5
 		if(tag[i] == 's'):
 			head = 4
+		if(tag[i] == 'd'):
+			head = 3
+		if(tag[i] == 'p'):
+			head = 2
 		response['message'][head].append(words[i])	
 
 
