@@ -330,8 +330,8 @@ def generateNGram(keyword_texts, k):
 		# list_to_excel.append([x, d[x]])
 
 	# pd.DataFrame(list_to_excel, columns = ["Keyword", "Average Searces"]).to_excel(f'nGram{n}.xlsx', header=True, index=False)
-	print()
-	print("generated keywords = ", generated_keywords)
+	# print()
+	# print("generated keywords = ", generated_keywords)
 	return generated_keywords, ngram
 
 
@@ -433,7 +433,8 @@ def filterKeywords(nWords, response):
 def filter(nWords,nWordsDict, must_have, k,keywords, response):
 
 	if(must_have == ''):
-		print("must_have_word not provided")
+		# print("must_have_word not provided")
+		response['message'] = 'must_have not found'
 		return
 
 	filtered_keywords  = []
@@ -446,7 +447,7 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 	# keyPlanner = [x for x in mylist if str(x) != 'nan']
 
 	must_have_words = list(must_have.split(", "))
-	print("must_have_word = ",must_have_words)
+	# print("must_have_word = ",must_have_words)
 	# print(keywords)
 
 	skip = {}
@@ -550,7 +551,7 @@ def form():
 	if(len(nWords) == 0):
 		k = 0
 		for keyword_texts in all_keywords:
-			if(k == len(all_keywords -1)):
+			if(k == len(all_keywords )-1):
 				continue
 			generated_keywords, nGram = generateNGram(keyword_texts, k)
 			k+=1	
