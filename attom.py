@@ -438,6 +438,7 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 		return
 
 	filtered_keywords  = []
+	print("filtering...")
 	# keywords_file_name = 'keywords'+ str(k)+".xlsx"
 
 	# df = pd.read_excel(keywords_file_name) # can also index sheet by name or fetch all sheets
@@ -462,21 +463,21 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 
 		preferred_keyword = True
 
-		print("keyword = ", keyword)
+		# print("keyword = ", keyword)
 
 		for must in must_have_words:
 			must = must.lower()
 			if(keyword.find(must) == -1):
-				print("must not found = ", must)
+				# print("must not found = ", must)
 				preferred_keyword = False
 
 		for nWord in nWords:
 			if(skip.__contains__(nWord)):
-				print("skipped = ", nWord)
+				# print("skipped = ", nWord)
 				continue
 
 			if(nWord in keyword):
-				print("nWrod found = ", nWord)
+				# print("nWrod found = ", nWord)
 				preferred_keyword = False
 
 		print()
