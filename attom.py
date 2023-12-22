@@ -550,7 +550,8 @@ def form():
 	if(len(nWords) == 0):
 		k = 0
 		for keyword_texts in all_keywords:
-
+			if(k == len(all_keywords -1)):
+				continue
 			generated_keywords, nGram = generateNGram(keyword_texts, k)
 			k+=1	
 			all_generated_keywords.append(generated_keywords)
