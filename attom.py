@@ -480,7 +480,7 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 				# print("nWrod found = ", nWord)
 				preferred_keyword = False
 
-		print()
+		print("----                                     ----")
 
 		if(preferred_keyword):
 			filtered_keywords.append(keyword)
@@ -517,7 +517,19 @@ def form():
 	usp_keywords = {}
 	all_keywords = [keyword_texts]
 	nWords = list(my_dict['price'].keys());
+	nG = my_dict['price'];
+	nWords = []
+	ad_group_words = []
+	for x in nG.keys():
+		if(x == 'Both' or x == 'Offline' or x == 'Online'):
+			continue
+		if(nG[x] == 1):
+			nWords.append(x)
+		elif(nG[x] == 2):
+			ad_group_words.append(x)
 
+	print(nWords)
+	print(ad_group_words)
 
 	customer_id = "4998884170"
 	language_id = _DEFAULT_LANGUAGE_ID
