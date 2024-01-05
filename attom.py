@@ -430,7 +430,7 @@ def filterKeywords(nWords, response):
 
 
 
-def filter(nWords,nWordsDict, must_have, k,keywords, response):
+def filter(nWords,nWordsDict, must_have, k,keywords, response, ad_group_words):
 
 	if(must_have == ''):
 		# print("must_have_word not provided")
@@ -458,7 +458,7 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 				skip[nWord] = 1
 
 
-
+	filtered_keywords = {}
 	for keyword in keywords:
 
 		preferred_keyword = True
@@ -483,7 +483,23 @@ def filter(nWords,nWordsDict, must_have, k,keywords, response):
 		print("----                                     ----")
 
 		if(preferred_keyword):
-			filtered_keywords.append(keyword)
+			done = False
+			for ad_group_word in ad_group_words:
+				x = list(map(str, keyword.split(" ")))
+				for word in x:
+					if(ad_group_word == word):
+						done = True
+						if(not filtered_keywords.__contains__(ad_group_word)): 
+							filtered_keywords[ad_group_word] = [keyword]
+						else:
+							filtered_keywords[ad_group_word].append(keyword)
+			if(done == False):
+				if(not filtered_keywords.__contains__(must_have_words[0])):
+					filtered_keywords[must_have_words[0]] = [keyword]
+				else:
+					filtered_keywords[must_have_words[0]].append(keyword)
+
+	print(filtered_keywords)
 
 	return (filtered_keywords)
 
@@ -509,6 +525,7 @@ def form():
 	my_dict = json.loads(request.data.decode('utf-8'))
 	name=    (my_dict['name'])
 	allUsp = (my_dict['allUsp'])
+	print(allUsp)
 	productKeywords = (my_dict['productKeywords'])
 
 	category = (my_dict['category'])
@@ -527,6 +544,8 @@ def form():
 			nWords.append(x)
 		elif(nG[x] == 2):
 			ad_group_words.append(x)
+
+
 
 	print(nWords)
 	print(ad_group_words)
@@ -604,7 +623,7 @@ def form():
 		print("must_have = ", must_have)
 		print("all_generated_keywords = ", all_generated_keywords[k])
 
-		filtered_keywords = filter(nWords,negWords, must_have, k,all_generated_keywords[k],response)	
+		filtered_keywords = filter(nWords,negWords, must_have, k,all_generated_keywords[k],response, ad_group_words)	
 		k+=1
 		all_filtered_keywrods.append(filtered_keywords)
 		for x in usp_keywords.keys():
@@ -615,7 +634,7 @@ def form():
 			print("must_have = ", must_have)
 			print("all_generated_keywords = ", all_generated_keywords[k])
 
-			filtered_keywords = filter(nWords,negWords, must_have, k, all_generated_keywords[k], response)
+			filtered_keywords = filter(nWords,negWords, must_have, k, all_generated_keywords[k], response, ad_group_words)
 			all_filtered_keywrods.append(filtered_keywords)
 			k+=1
 		response['message'][9] = nWords
